@@ -36,14 +36,29 @@ namespace MatchGame
             SetUpGame();
         }
 
+        float bestTime = 0;
+
         private void Timer_Tick(object? sender, EventArgs e)
         {
-            tenthsOfSecondsElapsed++;
+            tenthsOfSecondsElapsed--;
             timeTextBlock.Text = (tenthsOfSecondsElapsed / 10f).ToString("0.0s");
             if (matchesFound == 8)
             {
                 timer.Stop();
-                timeTextBlock.Text = timeTextBlock.Text + " - Play again?";
+
+                if ((tenthsOfSecondsElapsed / 10f) < bestTime || bestTime == 0)
+                {
+                    bestTime = (30 - tenthsOfSecondsElapsed) / 10f;
+                }
+
+                timeTextBlock.Text = $"Best time: {bestTime}s\n"
+                    + (30 - tenthsOfSecondsElapsed) / 10f + " - Play again?";
+            }
+            else if (tenthsOfSecondsElapsed == 0)
+            {
+                timer.Stop();
+
+                timeTextBlock.Text = "Time is over\nPlay again?";
             }
         }
 
@@ -59,9 +74,32 @@ namespace MatchGame
                 "💔", "💔",
                 "🥑", "🥑",
                 "🐸", "🐸",
+                "👳‍", "👳‍",
+                "‍🤦‍", "‍🤦‍",
+                "‍✈", "‍✈",
+                "‍👀", "‍👀",
+                "‍🐗", "‍🐗",
+                "‍🐭", "‍🐭",
+                "‍🦄", "‍🦄",
+                "‍🐶", "‍🐶",
             };
 
             Random random = new Random();
+
+            while (animalEmoji.Count != 16)
+            {
+                int index = random.Next(animalEmoji.Count);
+                if (index % 2 == 0)
+                {
+                    animalEmoji.RemoveAt(index);
+                    animalEmoji.RemoveAt(index);
+                }
+                else
+                {
+                    animalEmoji.RemoveAt(index);
+                    animalEmoji.RemoveAt(index - 1);
+                }
+            }
 
             foreach(TextBlock textBlock in mainGrid.Children.OfType<TextBlock>())
             {
@@ -79,7 +117,7 @@ namespace MatchGame
             }
 
             timer.Start();
-            tenthsOfSecondsElapsed = 0;
+            tenthsOfSecondsElapsed = 30;
             matchesFound = 0;
         }
 
@@ -110,7 +148,7 @@ namespace MatchGame
 
         private void TimeTextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (matchesFound == 8)
+            if (matchesFound == 8 || tenthsOfSecondsElapsed == 0)
             {
                 SetUpGame();
             }
